@@ -48,20 +48,6 @@ void setup() {
 void loop() {
   if (digitalRead(pedCross) == HIGH)
   {
-    PEDWalk();
-  }
-  else if (trafficWest && digitalRead(carEast) == HIGH)
-  {
-    TrafficGoWest();
-  }
-  else if (!trafficWest && digitalRead(carWest) == HIGH)
-  {
-    TrafficGoEast();
-  }
-}
-
-void PEDWalk()
-{
     if (trafficWest)
     {
       digitalWrite(greenWestLED, LOW);
@@ -102,10 +88,9 @@ void PEDWalk()
       digitalWrite(greenEastLED, HIGH);
       digitalWrite(redEastLED, LOW);
     }
-}
-
-void TrafficGoWest()
-{
+  }
+  else if (trafficWest && digitalRead(carEast) == HIGH)
+  {
     digitalWrite(greenWestLED, LOW); //Turn Green to Yellow Light
     digitalWrite(yellowWestLED, HIGH);
     delay(trafficDelay);
@@ -115,10 +100,9 @@ void TrafficGoWest()
     digitalWrite(redEastLED, LOW); //Turn Opposite End Red to Green Light
     digitalWrite(greenEastLED, HIGH);
     trafficWest = false; //Reverse Direction
-}
-
-void TrafficGoEast()
-{
+  }
+  else if (!trafficWest && digitalRead(carWest) == HIGH)
+  {
     digitalWrite(greenEastLED, LOW); //Turn Green to Yellow Light
     digitalWrite(yellowEastLED, HIGH);
     delay(trafficDelay);
@@ -128,4 +112,5 @@ void TrafficGoEast()
     digitalWrite(redWestLED, LOW); //Turn Opposite End Red to Green Light
     digitalWrite(greenWestLED, HIGH);
     trafficWest = true; //Reverse Direction
+  }
 }
