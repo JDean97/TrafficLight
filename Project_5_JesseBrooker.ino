@@ -18,11 +18,12 @@
 
 bool trafficWest = true;// true traffic is coming from West
 
-int trafficDelay = 3000;
 int pedDelay = 8000;
 int flashDelay = 500;
+int trafficDelay = 3000;
 
-void setup() {
+void setup()
+{
   pinMode(carWest, INPUT);
   pinMode(pedCross, INPUT);
   pinMode(carEast, INPUT);
@@ -45,10 +46,11 @@ void setup() {
   digitalWrite(redPedLED, HIGH);
 }
 
-void loop() {
+void loop()
+{
   if (digitalRead(pedCross) == HIGH)
   {
-    PEDWalk();
+    PEDWalk(trafficWest);
   }
   else if (trafficWest && digitalRead(carEast) == HIGH)
   {
@@ -60,72 +62,78 @@ void loop() {
   }
 }
 
-void PEDWalk()
+void PEDWalk(bool _trafficWest)
 {
-    if (trafficWest)
-    {
-      digitalWrite(greenWestLED, LOW);
-      digitalWrite(yellowWestLED, HIGH);
-      delay(trafficDelay);
-      digitalWrite(yellowWestLED, LOW);
-      digitalWrite(redWestLED, HIGH);
-    }
-    else if (!trafficWest)
-    {
-      digitalWrite(greenEastLED, LOW);
-      digitalWrite(yellowEastLED, HIGH);
-      delay(trafficDelay);
-      digitalWrite(yellowEastLED, LOW);
-      digitalWrite(redEastLED, HIGH);
-    }
-    delay(trafficDelay);
-    digitalWrite(redPedLED, LOW);
-    digitalWrite(whitePedLED, HIGH);
-    delay(pedDelay);
-    for (int i = 0; i < 5; i++)
-    {
-      digitalWrite(whitePedLED, LOW);
-      delay(flashDelay);
-      digitalWrite(whitePedLED, HIGH);
-      delay(flashDelay);
-    }
-    digitalWrite(whitePedLED, LOW);
-    digitalWrite(redPedLED, HIGH);
-    delay(trafficDelay);
-    if (trafficWest)
-    {
-      digitalWrite(greenWestLED, HIGH);
-      digitalWrite(redWestLED, LOW);
-    }
-    else if (!trafficWest)
-    {
-      digitalWrite(greenEastLED, HIGH);
-      digitalWrite(redEastLED, LOW);
-    }
+  ChangeLightsStop(_trafficWest);
+  PEDLight(pedDelay, flashDelay);
+  delay(trafficDelay);
+  ChangeLightsGo(trafficWest, true);
 }
 
 void TrafficGoWest()
 {
+  ChangeLightsStop(trafficWest);
+  ChangeLightsGo(trafficWest, false); //Turn Opposite End Red to Green Light
+  trafficWest = false; //Reverse Direction
+}
+
+void TrafficGoEast()
+{
+  ChangeLightsStop(trafficWest);
+  ChangeLightsGo(trafficWest, false); //Turn Opposite End Red to Green Light
+  trafficWest = true; //Reverse Direction
+}
+
+void PEDLight(int _pedDelay, int _flashDelay)
+{
+  digitalWrite(redPedLED, LOW);
+  digitalWrite(whitePedLED, HIGH);
+  delay(_pedDelay);
+  for (int i = 0; i < 5; i++)
+  {
+    digitalWrite(whitePedLED, LOW);
+    delay(_flashDelay);
+    digitalWrite(whitePedLED, HIGH);
+    delay(_flashDelay);
+  }
+  digitalWrite(whitePedLED, LOW);
+  digitalWrite(redPedLED, HIGH);
+}
+
+void ChangeLightsStop(bool _trafficWest)
+{
+  if (_trafficWest)
+  {
     digitalWrite(greenWestLED, LOW); //Turn Green to Yellow Light
     digitalWrite(yellowWestLED, HIGH);
     delay(trafficDelay);
     digitalWrite(yellowWestLED, LOW); //Turn Yellow to Red Light
     digitalWrite(redWestLED, HIGH);
     delay(trafficDelay);
-    digitalWrite(redEastLED, LOW); //Turn Opposite End Red to Green Light
-    digitalWrite(greenEastLED, HIGH);
-    trafficWest = false; //Reverse Direction
-}
-
-void TrafficGoEast()
-{
+  }
+  else if (!_trafficWest)
+  {
     digitalWrite(greenEastLED, LOW); //Turn Green to Yellow Light
     digitalWrite(yellowEastLED, HIGH);
     delay(trafficDelay);
     digitalWrite(yellowEastLED, LOW); //Turn Yellow to Red Light
     digitalWrite(redEastLED, HIGH);
     delay(trafficDelay);
-    digitalWrite(redWestLED, LOW); //Turn Opposite End Red to Green Light
+  }
+}
+
+void ChangeLightsGo(bool _trafficWest, bool resumeDirection)
+{
+  // resumeDirection = true traffic will return to direction it was moving before
+  // resumeDireciton = false traffic will move opposite direction as before
+  if ((_trafficWest && resumeDirection) || (!_trafficWest && !resumeDirection))
+  {
+    digitalWrite(redWestLED, LOW);
     digitalWrite(greenWestLED, HIGH);
-    trafficWest = true; //Reverse Direction
+  }
+  else if ((!_trafficWest && resumeDirection) || (_trafficWest && !resumeDirection))
+  {
+    digitalWrite(redEastLED, LOW);
+    digitalWrite(greenEastLED, HIGH);
+  }
 }
